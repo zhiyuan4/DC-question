@@ -1,0 +1,128 @@
+---
+title: "STAT 184 Homework Exercises"
+author: "zhiyaun zhang"
+subtitle: DataComputing Chapters 7
+output:
+  html_document:
+    df_print: paged
+---
+
+###question 7.1
+##1 reduction
+##2 reduction
+##3 reduction
+##4 transformation
+##5 neither
+##6 reduction
+##7 could determine by using reduction function
+##8 reduction
+
+###question7.3
+##1 200 cases
+##2 BETSYHODGES DONSAMUELS MARKANDREW JACKYCHERRYHOMES bobfine/camwinton
+##3 first#834  second#10598 third#19210
+##4 BETSYHODGES DONSAMUELS MARKANDREW
+##5 B   ETSYHODGE
+```{r}
+rm(list = ls())
+
+library(tidyverse)
+library(mosaic)
+library(mosaicData)
+library(dcData)
+
+data("Minneapolis2013", package = "dcData")
+Minneapolis2013 %>% 
+  summarise(count = n())
+Minneapolis2013 %>% 
+    group_by(Second) %>%
+    summarise(count = n()) %>%
+    arrange(desc(count)) %>%
+    head(5)
+Minneapolis2013 %>% 
+    group_by(First) %>%
+    summarise(count = n()) %>%
+    filter(First == "undervote")
+Minneapolis2013 %>% 
+    group_by(Second) %>%
+    summarise(count = n()) %>%
+    filter(Second == "undervote")
+Minneapolis2013 %>% 
+    group_by(Third) %>%
+    summarise(count = n()) %>%
+    filter(Third == "undervote")
+Minneapolis2013 %>% 
+    group_by(First, Second) %>%
+    summarise(count = n()) %>%
+    arrange(desc(count)) %>%
+    head(3)
+Minneapolis2013 %>% 
+    group_by(Precinct) %>%
+    summarise(count = n()) %>%
+    arrange(desc(count)) %>%
+    head(1)
+```
+
+### Question7.5
+##1 this uis the data that acounts for first and second group combination
+##2 this is the case that counts for totol cases for each voters
+##3 this is the cases tha counts for total cases for first and second voters' combination
+##4 this is the total cases for the voters group by the first and second vote
+```{r}
+VoterData_A <-
+  Minneapolis2013 %>%
+  group_by(First, Second)
+
+head(VoterData_A)
+VoterData_B <-
+  Minneapolis2013 %>%
+  summarise(total = n())
+
+VoterData_B
+VoterData_C <-
+  Minneapolis2013 %>%
+  group_by(First, Second) %>%
+  summarise(total = n())
+VoterData_C
+```
+
+###question6
+```{r}
+data("ZipGeography")
+
+LandPop <- ZipGeography %>%
+  group_by(State) %>% 
+  summarise(POPSUM = sum(Population, na.rm = TRUE), 
+            LandSUM = sum(LandArea, na.rm = TRUE),
+            POPperLandSUM = sum(Population, na.rm = TRUE)/sum(LandArea, na.rm = TRUE))
+
+# make scatter plot showing relationship (used interactive command like `mplot(LandPop)`)
+ggplot(data = LandPop,
+       aes(x = LandSUM, 
+           y = POPSUM)) + 
+  geom_point() + 
+  aes(colour = State) 
+LandPop %>%
+  mUSMap(key = "State", fill = "POPSUM")
+LandPop %>%
+  mUSMap(key = "State", fill = "POPperLandSUM")
+```
+###question7.7
+##a  gives the data about mean and number of the data which filtered by sex
+##b gives the data about mean  and number of the data which filtered by diagnosis
+##c gives the data about mean  and number of the data which filtered by sex and diagnosis combination
+##d gives the data about mean  and number of the data which filtered by diagnosis and age combination
+##e gives the data about mean  and number of the data which filtered by age
+
+
+###question 7.8
+```{r}
+data("ZipDemography", package = "dcData")
+
+ggplot(ZipDemography, 
+       aes(x = Foreignborn, y = SpeakalanguageotherthanEnglishathome5yearsandover)) +
+  geom_point()
+
+
+
+```
