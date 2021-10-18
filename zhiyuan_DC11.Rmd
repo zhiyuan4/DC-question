@@ -1,0 +1,218 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+## question 11.2
+## because there is no column is same in two tables. and also, the row of each table are different. by simply combining them will result in different informations in each cases.
+
+
+##question 11.3
+##3
+```{r}
+library(mosaic)
+library(dcData)
+data(ZipGeography)
+data("ZipDemography")
+ZipCombined <- 
+  ZipGeography %>%
+  left_join(ZipDemography, by = c("ZIP" = "ZIP"))
+Crowded <- 
+  ZipCombined %>%
+  filter(Population > 50000) 
+
+Crowded %>%
+ filter(!(State %in% "")) %>%
+ ggplot() +
+ aes(x = Longitude, y = Latitude) +
+ geom_point(size = 1L, colour = "#0c4c8a") +
+ theme_minimal()
+```
+
+##4
+```{R}
+StateDemographics <- 
+  ZipCombined %>%
+  group_by(State) %>%
+  summarise(stateHomesVacant = sum(Vacanthousingunits, na.rm = TRUE) / sum(Totalhousingunits, na.rm = TRUE), 
+            state65Frac = sum(X65yearsandover, na.rm = TRUE) / sum(Population, na.rm = TRUE), 
+            stateBachDegPlus =  sum(Bachelorsdegreeorhigher, na.rm = TRUE) / sum(Population, na.rm = TRUE))
+
+StateDemographics %>%
+  mUSMap(key = "State", fill = "stateHomesVacant")
+StateDemographics %>%
+  mUSMap(key = "State", fill = "state65Frac")
+StateDemographics %>%
+  mUSMap(key = "State", fill = "stateBachDegPlus")
+```
+
+##5
+
+```{r}
+HighPop <- 
+  ZipCombined %>%
+  arrange(desc(Population)) %>%
+  head(10000) %>%
+  transmute(State, ZIP, Latitude, Longitude,
+            frac65plus = X65yearsandover / Population)
+
+
+ggplot(HighPop) +
+ aes(x = Longitude, y = Latitude, colour = frac65plus) +
+ geom_point(size = 1L) +
+ scale_color_gradient() +
+ theme_minimal()
+```
+
+##6
+
+```{r}
+WaterZIP <- 
+  ZipCombined %>%
+  transmute(State, ZIP, Latitude, Longitude,
+            waterPercent = round(WaterArea / LandArea * 100, 2)) %>%
+  filter(waterPercent > 50)
+
+
+WaterZIP %>%
+ filter(!(State %in% "")) %>%
+ ggplot() +
+ aes(x = Longitude, y = Latitude) +
+ geom_point(size = 1L, colour = "#0c4c8a") +
+ theme_minimal()
+
+#leaflet(WaterZIP) %>%
+ # addTiles() %>%
+ #x addCircleMarkers(radius = 1, color = "blue") %>%
+  #View(-111.491, 45.872, zoom = 3) 
+
+
+```
+
+##11.5
+```{r}
+ZipGeography %>%
+  summarise(TotalCounties = n_distinct(County))
+StateFreqByCity <-   
+  ZipGeography %>%
+  group_by(CityName) %>%
+  summarise(stateCount = n_distinct(State)) %>%
+  arrange(desc(stateCount))
+
+StateFreqByCity
+
+CityPop <- 
+  ZipGeography %>%
+  na.omit() %>%
+  group_by(State, CityName) %>%
+  summarise(cityPop = sum(Population)) 
+StatePop <- 
+  ZipGeography %>%
+  na.omit() %>%
+  group_by(State) %>%
+  summarise(statePop = sum(Population))  # calculate state populations
+
+BigCities <- 
+  CityPop %>%
+  inner_join(StatePop, by = c("State" = "State")) %>%
+  mutate(statePopPerc = round(cityPop / statePop * 100, 2)) %>%
+  filter(statePopPerc > 5)
+
+
+StateFreqByCity %>%
+  inner_join(BigCities, by = c("CityName")) %>%
+  select(CityName, stateCount) %>%
+  arrange(desc(stateCount))
+
+ZipGeography %>%
+  na.omit() %>%
+  group_by(State) %>%
+  summarise(timezoneCount = n_distinct(Timezone)) %>%  # timezones per state
+  arrange(desc(timezoneCount))
+
+ZipGeography %>%
+  na.omit() %>%
+  group_by(State, CityName) %>%
+  summarise(timezoneCount = n_distinct(Timezone)) %>%  # timezones per City
+  arrange(desc(timezoneCount))
+
+ZipGeography %>%
+  na.omit() %>%
+  group_by(State, County) %>%
+  summarise(timezoneCount = n_distinct(Timezone)) %>%  # timezones per City
+  arrange(desc(timezoneCount))
+```
+
+
+##11.6
+```{r}
+
+data("MigrationFlows", package = "dcData")
+
+MigrationFlowsSmall <- 
+  MigrationFlows %>%
+  select(sex, destcode, origincode, Y2000) %>%
+  filter(destcode %in% c("CAN", "FRA", "MEX"), 
+         origincode %in% c("CAN", "FRA", "MEX"), 
+         Y2000 != 0)  
+
+head(MigrationFlowsSmall)
+
+
+```
+##1
+
+```{r}
+MigrationFlowsGlyphRdy <- 
+  MigrationFlowsSmall %>%
+  rename(countryB = destcode, countryA = origincode, toAfromB = Y2000)
+
+MigrationFlowsGlyphRdy
+
+```
+
+
+##2
+```{r}
+
+```
+
+##3
+
+```{r}
+
+library(tibble)  # we did this with the presidents data in class
+
+HealthIndicators <-
+  tribble(
+    ~iso_a3, ~infant,
+    "CAN", 4.71, 
+    "FRA", 3.31, 
+    "MEX", 12.58
+  )
+
+
+MigrationFlowsGlyphRdy <- 
+  MigrationFlowsGlyphRdy %>%
+  inner_join(HealthIndicators, by = c("countryA" = "iso_a3")) %>%
+  rename(infantA = infant)
+MigrationFlowsGlyphRdy
+
+
+```
+
+
+
+##4
+```{r}
+MigrationFlowsGlyphRdy <- 
+  MigrationFlowsGlyphRdy %>%
+  inner_join(HealthIndicators, by = c("countryB" = "iso_a3")) %>%
+  rename(infantB = infant) 
+MigrationFlowsGlyphRdy
+
+
+
+```
