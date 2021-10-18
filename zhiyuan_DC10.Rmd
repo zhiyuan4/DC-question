@@ -1,0 +1,89 @@
+---
+title: "STAT 184 Homework Exercises"
+author: "zhiyaun zhang"
+subtitle: DataComputing Chapters 8
+output:
+  html_document:
+    df_print: paged
+---
+
+###question 10.1
+##1 summaryfunction
+##2 dataverb
+##3 reductionfunction
+##4 reductionfunction
+##5 dataverb
+##6 summaryfunction
+##7 dataverb
+##8 summaryfunction
+
+###question 10.2
+##1 mutate()
+##2 arrange()
+##3 filter()
+##4 select()
+##5 select()+group_by/()
+
+## question 10.3
+##1 nrow()
+##2 names()
+##3 help(),library(codebook)
+##4 library()
+##5 group_by()
+
+## question 10.4
+##1 Babynames %>% arrange(asc(count))
+##2 Babynames %>% filter(sex == F)
+##3 Babynames %>% filter(sex == M)
+##4 Babynames %>% summarise(total =())
+##5 Babynames %>% select(name, count)
+
+##question 10.5
+##1 1910
+##2
+##3
+```{r}
+library(mosaic)
+library(dcData)
+data(Minneapolis2013)
+Minneapolis2013 %>%
+  select(First, Second)%>%
+  count(First == Second)
+##Minneapolis2013 %>%
+##select(First) %>%
+##group_by(OLE_SAVIOR)%>%
+##arrange(desc(total))
+  
+```
+
+##question 10.6
+##1
+```{r}
+library(tidyverse)
+library(ggplot2)
+diamonds %>%  group_by(color) %>% 
+  summarise("mean" = sum(mean(carat))) %>% 
+  arrange(desc(mean)) %>% 
+  head(1)
+```
+##2
+```{r}
+diamonds %>%  group_by(clarity) %>% 
+  summarise("mean" = sum(mean(table/carat))) %>% 
+  arrange(desc(mean)) %>% 
+  head(1)
+
+```
+
+
+
+### question10.7
+
+##1
+```{r}
+Minneapolis2013 %>%
+  group_by(First) %>%
+  summarise(total = n()) %>%
+  mutate(First = ifelse(total < 5000, "minor", First))
+
+```
