@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(dcData)
+library(tidyverse)
+library(mosaic)
+```
+##Question 13
+
+##question 12.1
+```{r}
+BothSexes <-
+  BabyNames %>%
+  pivot_wider(names_from = sex, values_from = count) %>%    # sex replaced `???`
+  filter(M > 5 | F > 5)
+head(BothSexes)
+```
+##question 12.2
+```{r}
+BothSexes %>%
+  group_by(name) %>%
+  summarise(total_F = sum(F), 
+            total_M = sum(M)) %>%
+  mutate(balance = abs(log(total_F / total_M))) %>%
+  arrange(balance) %>%                   
+  head(10)
+
+
+```
+##question 12.3
+```{r}
+BothSexes %>%
+  group_by(name) %>%
+  summarise(total_F = sum(F), 
+            total_M = sum(M)) %>%
+  filter(total_F > 100 | total_M > 100) %>%        
+  mutate(balance = abs(log(total_F / total_M))) %>%
+  arrange(balance) %>% 
+  head(10) 
+
+```
+##question 12.4
+```{r}
+BothSexes %>%
+  mutate(total = F + M,
+         popularity = if_else(total > 100, 1, 0)) %>% 
+  group_by(name) %>%
+  summarise(lasting_popularity = sum(popularity),
+            total_F = sum(F), 
+            total_M = sum(M)) %>%
+  filter(lasting_popularity > 20) %>% 
+  mutate(balance = abs(log(total_F / total_M))) %>%
+  arrange(balance) %>%
+  head(10)
+
+```
+##question 12.5
+```{r}
+switched_balance <-
+BothSexes %>%
+  mutate(ratio = F/M) %>%
+  group_by(name) %>%
+  summarise(differ = max(ratio)-min(ratio)) %>%
+  arrange(desc(differ)) %>%
+  filter(differ>10) %>% 
+  select(name)
+
+
+BothSexes %>%
+  inner_join(switched_balance, by = "name") %>%
+  mutate(balance = abs(log(F/M))) %>%
+  ggplot(aes(x=year, y= balance)) +
+  geom_line(aes(color=name))
+
+BothSexes %>%
+  inner_join(switched_balance, by = "name") %>%
+  mutate(ratio = F/M) %>%
+  ggplot(aes(x=year, y= ratio)) +
+  geom_line(aes(color=name))
+
+```
+
+##question 12.22
+```{R}
+# Version One: A case represents babies given each name, for each sex, within a year.
+#Version Two: A case represents babies given a name in a given year.
+#Version Three: A case represents babies given each name for each sex.
+VersionOne<-
+  BabyNames %>%
+  filter(year==1912 | year==2012) %>%
+  rename(nbabies = count) %>%
+  select(name,sex,year,nbabies)
+VersionTwo <-     
+  VersionOne %>%
+  pivot_wider(names_from = sex, values_from = nbabies)
+head(VersionTwo)
+##VersionTwo is wider
+
+```
+
+##question 12.23
+```{r}
+VersionThree <-
+  BabyNames%>%
+  filter(year==1912 | year==2012) %>%
+  rename(nbabies = count) %>%
+  pivot_wider(names_from = year, values_from = nbabies)
+VersionOne <-
+  VersionThree %>% 
+  pivot_longer(cols = c(3,4), names_to = "year", values_to="nbabies") 
+head(VersionOne)
+##VersionThree is wider
+```
+##question 12.24
+```{r}
+BP_wide <- 
+  tribble(~subject, ~before, ~after, 
+             "BHO",   "120",  "160",
+             "GWB",   "115",  "135", 
+             "WJC",   "135",  "145")
+
+BP_wide %>%
+  pivot_longer(cols = c(subject, before, after), 
+               names_to = "when", values_to = "sbp")
+BP_wide %>%
+  pivot_longer(cols = c(before, after),     
+               names_to = "when", values_to = "sbp")
+
+```
