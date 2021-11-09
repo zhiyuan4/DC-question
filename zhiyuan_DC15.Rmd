@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+##
+```{r}
+library(mosaic)
+library(dcData)
+library(tidyverse)
+```
+
+###15.1
+```{r}
+data("CPS85")
+ggplot(CPS85,aes(sex,wage,fill=sex))+geom_boxplot()
+
+```
+
+###15.2
+```{r}
+data("NCHS")
+```
+##based on the graph, I would conclude that most likely height among NCHS at around 1.65 meter
+##baesd on the 2nd graph, most likely for men is around 1.7 meter, for women is around 1.6 ##meter
+##based on the thrid graph, for 40 years old will be around 26 bmi, for 70 years old will be around 27.5 bmi
+
+###15.3
+```{r}
+ggplot(CPS85,aes(educ, wage,colour=sex))+geom_point()+stat_smooth(method = lm)+ylim(0,15)
+```
+###15.4
+```{r}
+data("Galton")
+ggplot(Galton, aes(height,mother))+geom_density_2d()+facet_wrap(~sex)
+
+```
+###15.5
+## statistically I would not conclude that there is any linear trend. Althought there is a line. so no
+##I would conclude that there is half of points over the confidence interval, so there is no relationships
+## I think it consistent with the data
+## 2times 
+## yes_
