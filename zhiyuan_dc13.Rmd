@@ -1,0 +1,113 @@
+```{r}
+library(dcData)
+library(tidyverse)
+library(tidyr)
+
+```
+
+##question 13.1
+```{r}
+BabyNames %>%
+  group_by(sex, name) %>%
+  summarise(total = sum(count)) %>%
+  mutate(name_rank = rank(desc(total))) %>%
+  arrange(sex, name_rank) %>%
+  filter(name_rank <= 5)
+```
+
+##question 13.2
+```{r}
+BabyNames_ranked <- 
+  BabyNames %>%
+  group_by(year, name) %>%
+  summarise(updated_count = sum(count)) %>% 
+  mutate(ranking = if_else(condition = (rank(desc(updated_count)) <= 100), true = "Top_100", false = "Below")) %>%
+  group_by(year, ranking) %>%
+  summarise(total = sum(updated_count)) %>%
+  arrange(desc(year))
+BabyNames_ranked
+
+Fraction_EachYear <-
+  BabyNames_ranked %>% 
+  pivot_wider(names_from = ranking, values_from = total) %>%
+  mutate(fraction_in_top100 = Top_100/(Top_100 + Below))
+Fraction_EachYear
+
+Fraction_EachYear %>%
+  ggplot() + 
+  geom_line(aes(x = year, y = fraction_in_top100)) + 
+  ylim(0,NA) + 
+  labs(title = "Baby Names Over Time",  x = "Year", y = "Proportion of Babies with Top 100 Name")
+```
+
+##question 13.3
+```{r}
+popular <-
+  BabyNames %>%
+  group_by(year) %>%
+  filter(rank(desc(count)) <= 50)
+popular
+
+unpopular <-
+  BabyNames %>%
+  group_by(year) %>%
+  filter(rank(desc(count)) > 1000)
+unpopular
+
+popularity_change <- 
+  popular %>%
+  select(name, count, year) %>%
+  inner_join(unpopular %>%
+               select(name, count, year), by = c("name"))
+popularity_change
+
+unique(popularity_change$name)
+
+popular2 <-
+  BabyNames %>%
+  group_by(year, name) %>%
+  summarise(count = sum(count)) %>%
+  filter(rank(desc(count)) <= 50)
+popular2
+unpopular2 <-
+  BabyNames %>%
+  group_by(year, name) %>%
+  summarise(count = sum(count)) %>%
+  filter(rank(desc(count)) > 1000)
+unpopular2
+
+popularity_change2 <- 
+  popular2 %>%
+  select(name, count, year) %>%
+  inner_join(unpopular2 %>%
+               select(name, count, year), by = c("name"))
+popularity_change2
+
+unique(popularity_change2$name)
+
+
+
+
+```
+
+
+##question 16.1
+
+```{r}
+bday <- lubridate::ymd("1984-02-12")
+
+bday - lubridate::mdy("April 30, 1777")
+bday - lubridate::mdy("06-23-1912")
+bday - lubridate::dmy("3 March 1847")
+round(lubridate::ymd_hm("1984-02-12 7:30am") - lubridate::mdy_hm("Nov. 11th, 1918 at 11:00 am"))
+bday - lubridate::mdy("July 20, 1969")
+```
+
+##question 16.2
+```{r}
+numeric_conversion_function <- function(number_string){
+  cat("as.numeric( \"", number_string, "\" ) result: \n", as.numeric(number_string))
+  cat("\n \n readr::parse_number( \"", number_string, "\" ) result: \n", readr::parse_number(number_string))
+}
+numeric_conversion_function
+```
