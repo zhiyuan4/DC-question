@@ -1,0 +1,46 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+## question 1
+## variables are living area, bathrooms, bedrooms, fireplaces
+## no
+## 28372.15
+## also depends on number of fireplaces, living area, number of bathroom and bedrooms
+
+library(mosaic)
+library(dcData)
+library(party)
+data("NCHS")
+```
+
+```{r}
+NCHS %>%
+  na.omit() %>%
+  nrow()
+CompleteCases <- 
+  NCHS %>%
+  select(diabetic, weight, age, bmi, chol, smoker) %>%
+  na.omit() 
+CompleteCases %>% nrow()
+
+mod2 <- party::ctree(diabetic ~ weight + bmi + age, data = CompleteCases)
+
+plot(mod2, type = "simple")
+CompleteCases %>%
+  mutate(probability = as.numeric(predict(mod2)), 
+         likelihood = ifelse(diabetic, probability, 1-probability)) %>%
+  summarise(log_likelihood = sum(log(likelihood)))
+```
+
+
+
+
+## A useful risk factor splits the population into groups with very high and with very low probabilities of diabetes. For instance, node 25 marks a group with a 31.9% risk of diabetes. This result is larger than other groups which indicates that bmi greater than 35,34 is associated with higher risk of diabetes
+
+## node 5 suggests that about 0.002% of persons in the NCHS data with bmi below 23 and age below 36 had been diagnosed with diabetes. according to that assumetion we can see the lowest diabetes
